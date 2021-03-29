@@ -12,7 +12,8 @@
  {:app
   {:target :browser
    :modules {:main {:init-fn app/init}}
-   :devtools {:after-load app/init}
+   :devtools {                                              ;:after-load app/init
+              }
    }}
 
  }

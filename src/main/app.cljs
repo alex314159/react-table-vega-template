@@ -38,9 +38,9 @@
        [oz/vega-lite (charts/cases-and-deaths-bar)]
        ])
 
-(defn mountit []
+(defn ^:dev/after-load mountit []
   (rd/render [some-component]
              (.getElementById js/document "root")))
 
-(defn init []
+(defn ^:export init []
   (mountit))

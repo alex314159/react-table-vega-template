@@ -83,13 +83,14 @@
       :pageSizeOptions     [10 20 50]
       :className           "-striped -highlight"
       :defaultFilterMethod tools/case-insensitive-filter
-      :defaultFiltered     []                               ; [{:id "continent" :value "Asia"} {:id "location" :value "Vietnam"}]
+      :defaultFiltered     @table-filter                    ;this will allow filter persistence if table gets re-rendered - could also be: [{:id "continent" :value "Asia"} {:id "location" :value "Vietnam"}]
       :onFilteredChange    #(reset! table-filter %)
       }])
 
 
 (defn covid-react-table-pivoted
-  "Filtering is a lot harder and to be implemented. Particularly, hiding unneeded groupings"
+  "Filtering is a lot harder and to be implemented. Particula
+  rly, hiding unneeded groupings"
   []
   [:> ReactTable
    {:data                @res
@@ -103,7 +104,7 @@
     :defaultFilterMethod tools/case-insensitive-filter
     }])
 
-(defn alert-fn [state rowInfo instance] (clj->js {:onClick #(js/alert (str "You clicked on line with label: " (aget rowInfo "row" "a"))) :style {:cursor "pointer"}}))
+(defn alert-fn [state rowInfo instance] (clj->js {:onClick #(js/alert (str "You clicked on line where a=" (aget rowInfo "row" "a"))) :style {:cursor "pointer"}}))
 
 (defn dummy-table []
   (let [data (into [] (for [i (range 10)] {:label i :a (- (rand-int 20) 10) :b (- (rand-int 50) 25)}))]
