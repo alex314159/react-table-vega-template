@@ -97,7 +97,7 @@
   "Filtering is a lot harder - we filter the source table directly in CLJS which is slow"
   []
   [:> ReactTable
-   {:data                (tools/chainfilter (tools/cljs-case-insensitive-filter-fn @table-filter) @res)
+   {:data                (tools/cljs-text-filter-OR @table-filter @res)
     :columns             covid-table-columns
     :showPagination      false
     :sortable            true
