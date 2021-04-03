@@ -24,29 +24,66 @@
 ;FILTERING
 ;react-table calls the filter function with filterfn and row, where filterfn is {id: column_name value: text_in_filter_box
 
-(defn case-insensitive-filter [filterfn row]
-  "filterfn is {id: column_name value: text_in_filter_box
-  OR through comma separation"
-  (let [filter-values (clojure.string/split (.toLowerCase ^string (aget filterfn "value")) ",")]
-    (some true? (map #(.includes ^string (.toLowerCase ^string (str (aget row (aget filterfn "id")))) %) filter-values))))
+(defn chainfilter
+  "Chain filter (boolean AND). Defaults to equality if predicate is not a function.
+  warning: only one filter per key (no duplicates)
+  example: (chainfilter {:portfolio #(= % \"OGEMCORD\") :weight pos?} @positions)
+  equivalent to (chainfilter {:portfolio \"OGEMCORD\" :weight pos?} @positions)"
+  [m coll]
+  (reduce-kv
+    (fn [erg k pred]
+      (filter #(if (fn? pred) (pred (get % k)) (= pred (get % k))) erg)) coll m))
 
-(defn compare-nb
-  "Inequality filter
-  Filter cell can take number N, =N, >N or <N. If just N will default to ="
-  [filterfn row]
-  (let [input (aget filterfn "value")
-        rowval (aget row (aget filterfn "id"))]
-    (case (subs input 0 1)
-      "=" (= rowval (cljs.reader/read-string (subs input 1)))
-      ">" (> rowval (cljs.reader/read-string (subs input 1)))
-      "<" (< rowval (cljs.reader/read-string (subs input 1)))
-      (= rowval (cljs.reader/read-string input)))))
+(defn cljs-case-insensitive-filter-fn
+  "Used for pivot tables - creates the filter function which will filter the source data directly. Slow as re-renders everytime."
+  [filterfn]
+  (let [filter-chain (into {} (for [line filterfn] [(keyword (aget line "id")) (aget line "value")]))]
+    (into {} (for [[k filter-values] filter-chain]
+               [k
+                (fn [value]
+                  (some true? (map #(.includes ^string (.toLowerCase ^string value) %)
+                                   (.split (.toLowerCase ^string filter-values) ","))))]))))
+
+(defn text-filter-OR [filterfn row]
+  "filterfn is {id: column_name value: text_in_filter_box}
+  OR through comma separation
+  - first will exclude results"
+  (let [filter-values (clojure.string/split (.toLowerCase ^string (aget filterfn "value")) ",")]
+    (some true? (map (fn [s]  (if (= (.charAt s 0) "-")
+                                (not (.includes ^string (.toLowerCase ^string (str (aget row (aget filterfn "id")))) (.substring s 1)))
+                                (.includes ^string (.toLowerCase ^string (str (aget row (aget filterfn "id")))) s)))
+                     filter-values))))
+
+(defn comparator-read [rowval mult input]
+  (case (subs input 0 1)
+    ">" (> rowval (* mult (cljs.reader/read-string (subs input 1))))
+    "<" (< rowval (* mult (cljs.reader/read-string (subs input 1))))
+    "=" (= rowval (* mult (cljs.reader/read-string (subs input 1))))
+    (= rowval (* mult (cljs.reader/read-string input)))))
+
+(defn nb-filter-OR-AND [filterfn row]
+  "filterfn is {id: column_name value: text_in_filter_box
+  comma separation is OR. Within comma separation, & is AND."
+  (let [compread (partial comparator-read (aget row (aget filterfn "id")) 1.)]
+    (some true?
+          (map (fn [line] (every? true? (map compread (.split ^js/String line "&"))))
+               (.split ^js/String (.toLowerCase ^js/String (aget filterfn "value")) ",")))))
+
+(defn nb-filter-OR-AND-x100 [filterfn row]
+  "filterfn is {id: column_name value: text_in_filter_box
+  comma separation is OR. Within comma separation, & is AND."
+  (let [compread (partial comparator-read (aget row (aget filterfn "id")) 0.01)]
+    (some true?
+          (map (fn [line] (every? true? (map compread (.split ^js/String line "&"))))
+               (.split ^js/String (.toLowerCase ^js/String (aget filterfn "value")) ",")))))
 
 
 ;COLUMN FORMATTING
 
 (defn red-negatives [state rowInfo column]
-  (if (and (some? rowInfo) (neg? (aget rowInfo "row" (aget column "id")))) (clj->js {:style {:color "red" :textAlign "right"}}) (clj->js {:style { :textAlign "right"}})))
+  (if (and (some? rowInfo) (neg? (aget rowInfo "row" (aget column "id"))))
+    (clj->js {:style {:color "red" :textAlign "right"}})
+    (clj->js {:style { :textAlign "right"}})))
 
 
 ;CELL RENDERING
@@ -76,11 +113,11 @@
 
 ;SORTING - custom sorts are possible. Note that on first rendering things are not sorted.
 
-(defn worldsort [a b desc]
+(defn custom-text-sort [firstword a b desc]
   (let [res (cond
-              (and (= a "World") (not desc)) (- js/Infinity)
-              (and (= b "World") (not desc)) js/Infinity
-              (and (= a "World") desc) js/Infinity
-              (and (= b "World") desc) (- js/Infinity)
+              (and (= a firstword) (not desc)) (- js/Infinity)
+              (and (= b firstword) (not desc)) js/Infinity
+              (and (= a firstword) desc) js/Infinity
+              (and (= b firstword) desc) (- js/Infinity)
               :else (compare a b))]
     (if (pos? res) 1 -1)))
