@@ -5,11 +5,11 @@ A minimal template for displaying tabular data and charts with Clojurescript, th
 
 ## The problem
 
-Analysing data is great, but at some point you need to display it. Tables and charts are the natural way. Unfortunately I found the tooling in Clojurescript quite painful. This is an attempt at providing a clean template.
+Analysing data is great, but at some point you need to display it. Tables and charts are the natural way. Unfortunately I found the tooling in Clojurescript quite painful. This is an attempt at providing a clean template and some convenience functions.
 
 ## The tooling
 
-For table data we are using react-table v6 https://github.com/tannerlinsley/react-table/tree/v6. The current version is v7 but it is basically a completely different package and paradigm. Version 6 is battle tested, with plenty of documentation and examples online. The code has a bunch of examples / gotchas.
+For table data we are using react-table v6 https://github.com/tannerlinsley/react-table/tree/v6. The current version is v7 but it is basically a completely different package and paradigm. Version 6 is battle tested, with plenty of documentation and examples online. The code has a bunch of examples, gotchas, and a few useful functions for filtering and formatting data.
 
 For charts we are using vega through https://github.com/metasoarous/oz/. The code has some examples but it is all better covered in the Vega website https://vega.github.io/vega-lite/.
 
