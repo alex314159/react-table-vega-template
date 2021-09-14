@@ -6,6 +6,9 @@
     "shadow-cljs": "2.11.23"
   },
   "dependencies": {
+    "@nivo/bar": "^0.72.0",
+    "@nivo/core": "^0.72.0",
+    "@nivo/line": "^0.72.0",
     "react": "16.13.0",
     "react-dom": "16.13.0",
     "react-table-v6": "^6.8.6",

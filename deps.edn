@@ -1,8 +1,8 @@
 {:paths ["src/main" "resources" "target"]
  :deps  {org.clojure/clojure       {:mvn/version "1.10.3"}
-         org.clojure/clojurescript {:mvn/version "1.10.764"}
-         reagent/reagent           {:mvn/version "1.0.0"}
-         thheller/shadow-cljs      {:mvn/version "2.11.23"}
+         org.clojure/clojurescript {:mvn/version "1.10.866"}
+         reagent/reagent           {:mvn/version "1.1.0"}
+         thheller/shadow-cljs      {:mvn/version "2.14.6"}
          metasoarous/oz            {:mvn/version "1.6.0-alpha34"}
          cljs-http/cljs-http       {:mvn/version "0.1.46"}
         }

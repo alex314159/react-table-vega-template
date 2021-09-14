@@ -27,3 +27,6 @@ Things can get tricky here. First, don't use Leiningen, go for `deps.edn` - some
 
 In the project folder run `npx shadow-cljs watch app`. Take your browser to `localhost:8080`. You should see a bunch of tables and charts.
 
+## See also
+
+https://github.com/alex314159/nivo-cljs-template for integration with the excellent [nivo](https://nivo.rocks/) charting library - slightly less customizable than Vega but very beautiful.
